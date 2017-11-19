@@ -53,7 +53,7 @@ class Data {
 public class BayesNaive {
 	
 	public static double NormalDistribution (double x, double mean, double variance) {
-		return 1/(Math.sqrt(2*Math.PI*variance)) * Math.exp(-(x-mean)/(2*variance));
+		return 1/(Math.sqrt(2*Math.PI*variance)) * Math.exp(-(x-mean)*(x-mean)/(2*variance));
 	}
 	
 	public static void stats (List<Data> dataset) {
@@ -83,12 +83,23 @@ public class BayesNaive {
 		naVremeMeanS = dataset.stream().filter(x -> x.classA==1).mapToDouble(x -> x.averageHighSchool).average().getAsDouble();
 		soZadocnuvanjeMeanS = dataset.stream().filter(x -> x.classA==2).mapToDouble(x -> x.averageHighSchool).average().getAsDouble();
 		neDiplomiralMeanS = dataset.stream().filter(x -> x.classA==3).mapToDouble(x -> x.averageHighSchool).average().getAsDouble();
-		naVremeVarianceS = dataset.stream().filter(x -> x.classA==1).mapToDouble(x -> (x.averageFirstYear - naVremeMeanS)).average().getAsDouble()/
+		naVremeVarianceS = dataset.stream().filter(x -> x.classA==1).mapToDouble(x -> (x.averageHighSchool-naVremeMeanS)*(x.averageHighSchool-naVremeMeanS)).sum()/
 				(dataset.stream().filter(x -> x.classA==1).count()-1);
-		soZadocnuvanjeVarianceS = dataset.stream().filter(x -> x.classA==2).mapToDouble(x -> (x.averageFirstYear - soZadocnuvanjeMeanS)).average().getAsDouble()/
-				(dataset.stream().filter(x -> x.classA==2).count()-1);
-		neDiplomiralVarianceS = dataset.stream().filter(x -> x.classA==2).mapToDouble(x -> (x.averageFirstYear - neDiplomiralMeanS)).average().getAsDouble()/
-				(dataset.stream().filter(x -> x.classA == 3).count()-1);
+		
+		
+		
+		soZadocnuvanjeVarianceS = 0;
+		neDiplomiralVarianceS = 0;
+		for (Data d : dataset){
+			if (d.classA==2){
+				soZadocnuvanjeVarianceS+=((d.averageHighSchool-soZadocnuvanjeMeanS)*(d.averageHighSchool-soZadocnuvanjeMeanS));
+			}
+			if (d.classA==3){
+				neDiplomiralVarianceS+=((d.averageHighSchool-neDiplomiralMeanS)*(d.averageHighSchool-neDiplomiralMeanS));
+			}
+		}
+		soZadocnuvanjeVarianceS /= (dataset.stream().filter(x -> x.classA==2).count()-1);
+		neDiplomiralVarianceS /=(dataset.stream().filter(x-> x.classA==3).count()-1);
 		
 		System.out.println(String.format("Prosek vo sredno uciliste:\nStudenti koi diplomirale na vreme: mean: %f variance: %f\n"
 				+ "Studenti koi diplomirale so zadocnuvanje: mean: %f variance: %f\n"
@@ -105,12 +116,21 @@ public class BayesNaive {
 		naVremeMeanF = dataset.stream().filter(x -> x.classA==1).mapToDouble(x -> x.averageFirstYear).average().getAsDouble();
 		soZadocnuvanjeMeanF = dataset.stream().filter(x -> x.classA==2).mapToDouble(x -> x.averageFirstYear).average().getAsDouble();
 		neDiplomiralMeanF = dataset.stream().filter(x -> x.classA==3).mapToDouble(x -> x.averageFirstYear).average().getAsDouble();
-		naVremeVarianceF = dataset.stream().filter(x -> x.classA==1).mapToDouble(x -> (x.averageFirstYear - naVremeMeanS)).average().getAsDouble()/
+		naVremeVarianceF = dataset.stream().filter(x -> x.classA==1).mapToDouble(x -> (x.averageFirstYear-naVremeMeanF)*(x.averageFirstYear-naVremeMeanF)).sum()/
 				(dataset.stream().filter(x -> x.classA==1).count()-1);
-		soZadocnuvanjeVarianceF = dataset.stream().filter(x -> x.classA==2).mapToDouble(x -> (x.averageFirstYear - naVremeMeanS)).average().getAsDouble()/
+		soZadocnuvanjeVarianceF = dataset.stream().filter(x -> x.classA==2).mapToDouble(x -> Math.pow(x.averageFirstYear - soZadocnuvanjeMeanF,2)).sum()/
 				(dataset.stream().filter(x -> x.classA==2).count()-1);
-		neDiplomiralVarianceF = dataset.stream().filter(x -> x.classA==2).mapToDouble(x -> (x.averageFirstYear - naVremeMeanS)).average().getAsDouble()/
-				(dataset.stream().filter(x -> x.classA == 3).count()-1);
+		
+		
+		neDiplomiralVarianceF = 0;
+		
+		for (Data d : dataset){
+			if (d.classA==3){
+				neDiplomiralVarianceF += ((d.averageFirstYear-neDiplomiralMeanF)*(d.averageFirstYear-neDiplomiralMeanF));
+			}
+			
+		}
+		neDiplomiralVarianceF /= (dataset.stream().filter(x -> x.classA==3).count() -1) ;
 		
 		System.out.println(String.format("Prosek vo prva godina fakultet:\nStudenti koi diplomirale na vreme: mean: %f variance: %f\n"
 				+ "Studenti koi diplomirale so zadocnuvanje: mean: %f variance: %f\n"
@@ -219,6 +239,7 @@ public class BayesNaive {
 				if (j==0){
 					verojatnosti[j]=pNaVreme;
 					verojatnosti[j]*=NormalDistribution(d.averageHighSchool,naVremeMeanS,naVremeVarianceS);
+					System.out.println(NormalDistribution(d.averageHighSchool,naVremeMeanS,naVremeVarianceS));
 					if (d.typeHighSchool=="gimnazisko")
 						verojatnosti[j]*=naVremeGimnaziskoP;
 					else
@@ -238,7 +259,7 @@ public class BayesNaive {
 				}
 				else if (j==1){
 					verojatnosti[j]=pSoZadocnuvanje;
-					
+					System.out.println(pSoZadocnuvanje);
 					verojatnosti[j]*=NormalDistribution(d.averageHighSchool,soZadocnuvanjeMeanS,soZadocnuvanjeVarianceS);
 					if (d.typeHighSchool=="gimnazisko")
 						verojatnosti[j]*=soZadocnuvanjeGimnaziskoP;
@@ -256,7 +277,7 @@ public class BayesNaive {
 					else
 						verojatnosti[j]*=zadocni3;
 				}
-				else {
+				else if (j==2){
 					verojatnosti[j]=pNeDiplomiral;
 					verojatnosti[j]*=NormalDistribution(d.averageHighSchool,neDiplomiralMeanS,neDiplomiralVarianceS);
 					if (d.typeHighSchool=="gimnazisko")
@@ -278,7 +299,7 @@ public class BayesNaive {
 				
 			}
 			
-			
+			Arrays.stream(verojatnosti).forEach(x -> x /= Arrays.stream(verojatnosti).map(i->i).sum());
 			double maxP = Arrays.stream(verojatnosti).map(x -> x).max().getAsDouble();
 			for (int k=0;k<3;k++) {
 				System.out.println("Verojatnosta da se sluchi klasa "+ (k+1) + " e: " + verojatnosti[k]);
