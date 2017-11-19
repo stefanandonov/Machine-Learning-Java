@@ -207,10 +207,10 @@ public class BayesNaive {
 		
 		Scanner scanner = new Scanner(System.in);
 		double [] verojatnosti = new double[3];
-		for (int i=0;i<3;i++){
-			System.out.println("debugging");
+		
+			
 			String in = scanner.nextLine();
-			verojatnosti = new double[3];
+			
 			String [] inputs = in.split(",");
 			Data d = new Data(0,Double.parseDouble(inputs[0]),inputs[1],Double.parseDouble(inputs[2]),Integer.parseInt(inputs[3]));
 			
@@ -294,6 +294,6 @@ public class BayesNaive {
 		
 		
 	
-	}
+	
 
 }
