@@ -299,10 +299,10 @@ public class BayesNaive {
 				
 			}
 			
-			Arrays.stream(verojatnosti).forEach(x -> x /= Arrays.stream(verojatnosti).map(i->i).sum());
+			double sum = Arrays.stream(verojatnosti).map(x->x).sum();
 			double maxP = Arrays.stream(verojatnosti).map(x -> x).max().getAsDouble();
 			for (int k=0;k<3;k++) {
-				System.out.println("Verojatnosta da se sluchi klasa "+ (k+1) + " e: " + verojatnosti[k]);
+				System.out.println("Verojatnosta da se sluchi klasa "+ (k+1) + " e: " + verojatnosti[k]/sum);
 				if (verojatnosti[k]==maxP){
 					d.classA=k+1;
 				}
