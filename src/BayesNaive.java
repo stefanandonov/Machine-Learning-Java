@@ -43,7 +43,7 @@ class Data {
 			examsLeftString="poveke od 5";
 		
 		
-		return String.format("%s, %f, %s, %f, %s", className, averageHighSchool, typeHighSchool, averageFirstYear, examsLeftString);
+		return String.format("%s, %.2f, %s, %.2f, %s", className, averageHighSchool, typeHighSchool, averageFirstYear, examsLeftString);
 	}
 	
 	
@@ -53,7 +53,7 @@ class Data {
 public class BayesNaive {
 	
 	public static double NormalDistribution (double x, double mean, double variance) {
-		return 1/(Math.sqrt(2*Math.PI*variance)) * Math.exp(-(x-mean)*(x-mean)/(2*variance));
+		return 1/(Math.sqrt(2*Math.PI*variance)) * Math.exp(-((x-mean)*(x-mean))/(2*variance));
 	}
 	
 	public static void stats (List<Data> dataset) {
@@ -239,7 +239,7 @@ public class BayesNaive {
 				if (j==0){
 					verojatnosti[j]=pNaVreme;
 					verojatnosti[j]*=NormalDistribution(d.averageHighSchool,naVremeMeanS,naVremeVarianceS);
-					System.out.println(NormalDistribution(d.averageHighSchool,naVremeMeanS,naVremeVarianceS));
+					
 					if (d.typeHighSchool=="gimnazisko")
 						verojatnosti[j]*=naVremeGimnaziskoP;
 					else
@@ -259,7 +259,7 @@ public class BayesNaive {
 				}
 				else if (j==1){
 					verojatnosti[j]=pSoZadocnuvanje;
-					System.out.println(pSoZadocnuvanje);
+					
 					verojatnosti[j]*=NormalDistribution(d.averageHighSchool,soZadocnuvanjeMeanS,soZadocnuvanjeVarianceS);
 					if (d.typeHighSchool=="gimnazisko")
 						verojatnosti[j]*=soZadocnuvanjeGimnaziskoP;
@@ -285,7 +285,7 @@ public class BayesNaive {
 					else
 						verojatnosti[j]*=neDiplomiralStrucnoP;
 					
-					verojatnosti[j]*=NormalDistribution(d.averageFirstYear,naVremeMeanF,naVremeVarianceF);
+					verojatnosti[j]*=NormalDistribution(d.averageFirstYear,neDiplomiralMeanF,neDiplomiralVarianceF);
 					
 					if (d.examsLeft==0)
 						verojatnosti[j]*=ne0;
